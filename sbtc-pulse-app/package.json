@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@stacks/connect": "^8.1.9",
+    "@stacks/network": "^7.0.2",
+    "@stacks/transactions": "^7.0.6",
     "@tailwindcss/forms": "^0.5.10",
     "framer-motion": "^12.12.1",
     "lucide-react": "^0.511.0",

@@ -1,5 +1,6 @@
 // app/layout.jsx
 import { ThemeProvider } from "../context/ThemeContext";
+import { StacksAuthProvider } from "../context/StacksAuthContext";
 import Navbar from "../component/layout/Navbar";
 import Footer from "../component/layout/Footer";
 import BackgroundAnimation from "../component/layout/BackgroundAnimation";
@@ -15,12 +16,14 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="min-h-screen bg-gray-900 text-white">
         <ThemeProvider>
-          <BackgroundAnimation />
-          <Navbar />
-          <main className="pb-24">
-            {children}
-          </main>
-          <Footer />
+          <StacksAuthProvider>
+            <BackgroundAnimation />
+            <Navbar />
+            <main className="pb-24">
+              {children}
+            </main>
+            <Footer />
+          </StacksAuthProvider>
         </ThemeProvider>
       </body>
     </html>
