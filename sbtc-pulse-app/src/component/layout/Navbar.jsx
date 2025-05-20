@@ -117,14 +117,14 @@ const Navbar = () => {
               </motion.button>
             )}
             
-            <motion.a 
+            {/* <motion.a 
               href="/dashboard"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-5 py-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 dark:from-blue-400 dark:to-purple-600 text-white font-medium"
             >
               Launch App
-            </motion.a>
+            </motion.a> */}
             
             {/* Mobile Menu Button */}
             <button 
