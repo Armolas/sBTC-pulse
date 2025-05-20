@@ -99,7 +99,7 @@ const HomePage = () => {
               </Link>
             </motion.div>
             
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
@@ -111,7 +111,7 @@ const HomePage = () => {
                   View on GitHub <GitHub className="h-5 w-5" />
                 </button>
               </a>
-            </motion.div>
+            </motion.div> */}
           </div>
         </div>
       </section>
