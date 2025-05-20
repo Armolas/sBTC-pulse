@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useStacksAuth } from '../context/StacksAuthContext';
-import { getStreak, getRewards, getTier } from '../services/stacksService';
+import { 
+  getStreak, 
+  getRewards, 
+  getTier, 
+  getLastCheckIn, 
+  canCheckInToday,
+  getCurrentAddress
+} from '../services/stacksService';
 
 export const useContractData = () => {
   const { isAuthenticated, userData } = useStacksAuth();
@@ -10,30 +17,39 @@ export const useContractData = () => {
     streak: 0,
     rewards: 0,
     tier: 0,
+    lastCheckIn: 0,
+    canCheckIn: false,
     loading: true,
     error: null
   });
 
   useEffect(() => {
     const fetchContractData = async () => {
-      if (!isAuthenticated || !userData) {
+      if (!isAuthenticated) {
         setContractData(prev => ({ ...prev, loading: false }));
         return;
       }
 
       try {
-        const userAddress = userData.profile.stxAddress.mainnet; // or .testnet for testnet
+        const userAddress = getCurrentAddress();
+        if (!userAddress) {
+          throw new Error('No user address found');
+        }
         
-        const [streak, rewards, tier] = await Promise.all([
+        const [streak, rewards, tier, lastCheckIn, canCheckInResult] = await Promise.all([
           getStreak(userAddress),
           getRewards(userAddress),
-          getTier(userAddress)
+          getTier(userAddress),
+          getLastCheckIn(userAddress),
+          canCheckInToday(userAddress)
         ]);
 
         setContractData({
           streak,
           rewards,
           tier,
+          lastCheckIn,
+          canCheckIn: canCheckInResult,
           loading: false,
           error: null
         });
@@ -48,6 +64,11 @@ export const useContractData = () => {
     };
 
     fetchContractData();
+    
+    // Set up a refresh interval (every 5 minutes)
+    const intervalId = setInterval(fetchContractData, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
   }, [isAuthenticated, userData]);
 
   return contractData;

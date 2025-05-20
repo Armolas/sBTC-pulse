@@ -1,78 +1,84 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AppConfig, UserSession, showConnect } from '@stacks/connect';
+import { connect, disconnect, getLocalStorage } from '@stacks/connect';
+import { getCurrentAddress } from '../services/stacksService';
 
-// Create context
-const StacksAuthContext = createContext(undefined);
+const StacksAuthContext = createContext(null);
+
+export const useStacksAuth = () => {
+  const context = useContext(StacksAuthContext);
+  if (!context) {
+    throw new Error('useStacksAuth must be used within a StacksAuthProvider');
+  }
+  return context;
+};
 
 // Create a client-side only provider
 export const StacksAuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userSession, setUserSession] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize user session on client side only
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const appConfig = new AppConfig(['store_write', 'publish_data']);
-      const session = new UserSession({ appConfig });
-      setUserSession(session);
-      
-      if (session.isUserSignedIn()) {
-        setUserData(session.loadUserData());
+      const storage = getLocalStorage();
+      if (storage && storage.addresses && storage.addresses.stx && storage.addresses.stx.length > 0) {
+        setUserData({
+          profile: {
+            stxAddress: {
+              mainnet: storage.addresses.stx[0].address,
+              testnet: storage.addresses.stx[0].address
+            }
+          }
+        });
         setIsAuthenticated(true);
       }
+      setIsLoading(false);
     }
   }, []);
 
-  // Authentication function
-  const authenticate = () => {
-    if (!userSession) return Promise.reject('User session not initialized');
-    
-    return new Promise((resolve, reject) => {
-      showConnect({
-        appDetails: {
-          name: 'sBTC Pulse',
-          icon: window.location.origin + '/logo.png',
-        },
-        redirectTo: '/',
-        onFinish: () => {
-          const userData = userSession.loadUserData();
-          setUserData(userData);
+  const authenticate = async () => {
+    try {
+      setIsLoading(true);
+      const response = await connect();
+      
+      if (response) {
+        const storage = getLocalStorage();
+        if (storage && storage.addresses && storage.addresses.stx && storage.addresses.stx.length > 0) {
+          setUserData({
+            profile: {
+              stxAddress: {
+                mainnet: storage.addresses.stx[0].address,
+                testnet: storage.addresses.stx[0].address
+              }
+            }
+          });
           setIsAuthenticated(true);
-          resolve(userData);
-        },
-        onCancel: () => {
-          reject(new Error('User cancelled authentication'));
-        },
-        userSession,
-      });
-    });
-  };
-
-  // Logout function
-  const logout = () => {
-    if (userSession) {
-      userSession.signUserOut();
-      setUserData(null);
-      setIsAuthenticated(false);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to authenticate:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Don't render anything on the server
-  if (typeof window === 'undefined' || !userSession) {
-    return <>{children}</>;
-  }
+  const logout = () => {
+    disconnect();
+    setUserData(null);
+    setIsAuthenticated(false);
+  };
 
   return (
     <StacksAuthContext.Provider
       value={{
-        userData,
         isAuthenticated,
+        userData,
         authenticate,
         logout,
-        userSession,
+        isLoading
       }}
     >
       {children}
@@ -80,18 +86,4 @@ export const StacksAuthProvider = ({ children }) => {
   );
 };
 
-// Hook to use the auth context
-export const useStacksAuth = () => {
-  const context = useContext(StacksAuthContext);
-  if (context === undefined) {
-    throw new Error('useStacksAuth must be used within a StacksAuthProvider');
-  }
-  return context;
-};
-
-// Export a singleton userSession for use outside of React components
-export let userSession = null;
-if (typeof window !== 'undefined') {
-  const appConfig = new AppConfig(['store_write', 'publish_data']);
-  userSession = new UserSession({ appConfig });
-}
+export default StacksAuthContext;
