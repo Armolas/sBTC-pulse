@@ -1,13 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  experimental: {
-    optimizeCss: true,
+  async redirects() {
+    return [
+      {
+        source: '/leaderboard',
+        destination: '/dashboard/leaderboard',
+        permanent: true,
+      },
+    ]
   },
-  // Disable CSS preloading if the warnings persist
-  // experimental: {
-  //   disableOptimizedLoading: true,
-  // },
 }
 
 module.exports = nextConfig

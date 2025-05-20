@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import UserStats from './UserStats';
 import CheckInButton from './CheckInButton';
 import ClaimRewardsButton from './ClaimRewardsButton';
-import LeaderboardTable from './LeaderboardTable';
+import LeaderboardTable from '../leaderboard/LeaderboardTable';
 import ConnectWalletModal from '../layout/ConnectWalletModal';
 
 const Dashboard = () => {
