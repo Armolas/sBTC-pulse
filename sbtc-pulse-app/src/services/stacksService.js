@@ -13,7 +13,7 @@ const network = 'testnet';
 // For mainnet use: const network = 'mainnet';
 
 // Contract details
-const contractAddress = 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM'; // Replace with actual contract deployer address
+const contractAddress = 'ST1A514GGX294KQC7ZKD7Q886DDWVBA6GQ5MRB07E.sBTC-pulse'; // Replace with actual contract deployer address
 const contractName = 'sBTC-pulse';
 
 // Connect to wallet
